@@ -10,6 +10,14 @@ import manifest from "./fresh.gen.ts";
 import { config, setup } from "@twind";
 import { virtualSheet } from "twind/sheets";
 
+const port = Deno.args.filter(arg => typeof arg === 'string' && arg.includes('--port')).map((arg) => {
+  const args = Deno.args,
+  pos = args.findIndex(param => param === arg),
+  keyValue = arg.split('='),
+  value = keyValue.length > 1 ? keyValue[1] : args[pos+1] && args[pos+1].includes('--') ? undefined : args[pos+1];
+  return Number(value) || undefined;
+})[0] || 8000;
+
 const sheet = virtualSheet();
 sheet.reset();
 setup({ ...config, sheet });
@@ -23,4 +31,4 @@ function render(ctx: RenderContext, render: InnerRenderFunction) {
   ctx.state.set("twind", newSnapshot);
 }
 
-await start(manifest, { render });
+await start(manifest, { render, port }); 
